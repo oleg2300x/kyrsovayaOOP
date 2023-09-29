@@ -8,10 +8,6 @@ class SearchVacancies(ABC):
     def get_vacancies(self):
         pass
 
-    @abstractmethod
-    def parsing(self):
-        pass
-
 class SaverVacancies(ABC):
     '''Класс для добавления, выбора и удаления вакансии'''
 

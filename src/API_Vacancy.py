@@ -1,24 +1,24 @@
 import requests
 from Abstract_classes import SearchVacancies
-from vacancy import Vacancy
+from class_vacancy import Vacancy
 import os
 
 class HHManager(SearchVacancies):
     '''Класс для получения данных по слову API HH  и преобразование их в нужный формат данных'''
 
-    def __init__(self, keyword: str, page=0):
+    def __init__(self, keyword: str, count=100, page=0):
         self.url = 'https://api.hh.ru/vacancies'  # ссылка с вакансиями
         self.keyword = keyword  # ключевое слово для поиска
+        self.count = count
         self.page = page  # колличество страниц
-        self.service_name = "HeadHunter"
 
-    def parsing(self):
+    def get_vacancies(self):
 
         dict_vacancies = []
         parms = {
             'text': self.keyword,  # ключевое слово для поиска
+            'per_page': self.count,
             'area': 113,  # страна для поска(Россия)
-            'page': self.page,  # кол-во страниц
         }
         response = requests.get(self.url, parms).json()
 
@@ -52,33 +52,19 @@ class HHManager(SearchVacancies):
 
         return dict_vacancies
 
-    def get_vacancies(self):
-        '''Создаём список с экзеплярами скаласса Vacancy'''
-        list_vacancy = []
-
-        for data in self.parsing():
-            vacancy = Vacancy(self.service_name,
-                              data['name'],
-                              data['salary_from'],
-                              data['salary_to'],
-                              data['experience'],
-                              data['description'],
-                              data['alt_url'])
-            list_vacancy.append(vacancy)
-        return list_vacancy
 
 class SJManager(SearchVacancies):
-    def __init__(self, keyword: str, page=0):
+    def __init__(self, keyword: str, count=100, page=0):
         self.url = 'https://api.superjob.ru/2.0/vacancies/'
         self.keyword = keyword
+        self.count = count
         self.page = page
-        self.service_name = "SuperJob"
 
-    def parsing(self):
+    def get_vacancies(self):
         API_KEY = os.environ.get('API_KEY_SJ')
         dict_vacancies = []
         headers = {'X-Api-App-Id': API_KEY}
-        params = {'keywords': self.keyword, 'count': self.page}
+        params = {'keywords': self.keyword, 'count': self.count, 'page': self.page}
         response = requests.get(self.url, headers=headers, params=params).json()
 
         for data in response['objects']:
@@ -101,20 +87,6 @@ class SJManager(SearchVacancies):
 
         return dict_vacancies
 
-    def get_vacancies(self):
-        '''Создаём список с экзеплярами скаласса Vacancy'''
-        list_vacancy = []
-
-        for data in self.parsing():
-            vacancy = Vacancy(self.service_name,
-                              data['name'],
-                              data['salary_from'],
-                              data['salary_to'],
-                              data['experience'],
-                              data['description'],
-                              data['alt_url'])
-            list_vacancy.append(vacancy)
-        return list_vacancy
 
 
 
